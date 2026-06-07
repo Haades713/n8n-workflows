@@ -1,0 +1,222 @@
+{
+  "name": "Document Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9385deaa-5edb-446b-b4c8-deb935561364",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0a47c068-ee4a-47ea-b737-7e5caa0696ea",
+      "name": "Webhook",
+      "webhookId": "9385deaa-5edb-446b-b4c8-deb935561364"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7b94610a-9ed5-484c-87bc-762a26ccaabd",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Jsi expert na zpracování faktur. Z textu faktury vytáhni tato strukturovaná data a vrať POUZE JSON bez jakéhokoliv dalšího textu:\n\n{\n  \"cislo_faktury\": \"\",\n  \"datum_vystaveni\": \"\",\n  \"dodavatel\": \"\",\n  \"odberatel\": \"\",\n  \"polozky\": \"nazev x mnozstvi - cena (pokud více položek, odděl středníkem)\",\n  \"celkem\": \"\"\n}"
+            },
+            {
+              "content": "={{ $json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "090a0b9b-d44d-4f13-843b-8700273b9f90",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "808q1KyLjk4qNlhr",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "12OHrYsMjZ507yfDxCKjMTdfn9QtT_5NQs-14CF2kU08",
+          "mode": "list",
+          "cachedResultName": "Invoice Extraction",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12OHrYsMjZ507yfDxCKjMTdfn9QtT_5NQs-14CF2kU08/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12OHrYsMjZ507yfDxCKjMTdfn9QtT_5NQs-14CF2kU08/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Číslo faktury": "={{ JSON.parse($json.output[0].content[0].text).cislo_faktury }}",
+            "Datum": "={{ JSON.parse($json.output[0].content[0].text).datum_vystaveni }}",
+            "Dodavatel": "={{ JSON.parse($json.output[0].content[0].text).dodavatel }}",
+            "Odběratel": "={{ JSON.parse($json.output[0].content[0].text).odberatel }}",
+            "Položky": "={{ JSON.parse($json.output[0].content[0].text).polozky }}",
+            "Celkem": "={{ JSON.parse($json.output[0].content[0].text).celkem }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Číslo faktury",
+              "displayName": "Číslo faktury",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datum",
+              "displayName": "Datum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dodavatel",
+              "displayName": "Dodavatel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Odběratel",
+              "displayName": "Odběratel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Položky",
+              "displayName": "Položky",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Celkem",
+              "displayName": "Celkem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        0
+      ],
+      "id": "aaf455bd-44b5-4703-8b1b-d17986f5aec6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tTd8lt768roCFb4H",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "name": "Lead Research Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a4cc945f-e4da-4242-9a70-c08188ca2f89",
+      "name": "When chat message received",
+      "webhookId": "ac45287b-4ba5-4fbb-9f0e-e9c4b7cf0d1a"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Jsi expert na lead research. Když dostaneš název firmy, provedeš následující kroky:\n\n1. Vyhledej firmu na webu pomocí search toolu\n2. Vyhledej kontaktní informace firmy\n3. Vyhledej sociální sítě firmy\n4. Na základě výsledků sestav strukturovaný report obsahující:\n   - Co firma dělá\n   - Kdo ji vede\n   - Kontakt (email, telefon)\n   - Sociální sítě\n   - Potenciální potřeby pro automatizaci\n5. Zapiš report do databáze\n\nVždy proveď minimálně 3 různé vyhledávání před sestavením reportu.\n\nPři psaní reportu NIKDY nepoužívej markdown formátování (žádné ###, **, - ). Piš čistý text s nadpisy jako \"CO FIRMA DĚLÁ:\", \"KDO JI VEDE:\" atd.\n\nPo dokončení výzkumu VŽDY zapiš report do databáze pomocí Google Sheets toolu."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        344,
+        0
+      ],
+      "id": "43f56fd5-061d-4986-a0a9-954c2d662bd2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        224
+      ],
+      "id": "3a53f77a-30f4-4c52-8528-aa322585d8eb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "808q1KyLjk4qNlhr",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "b80f6cde-9ec7-4bae-8db3-52cae85a1977",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Prohledá web a najde informace o firmě. Použij pro hledání kontaktů, popisu firmy, sociálních sítí a dalších veřejných informací.",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        224
+      ],
+      "id": "0446d428-f4a5-4b2f-a83d-4aefea70d969",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "Qknu9YEiJll1zIig",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "VŽDY Použij po dokončení výzkumu firmy. Zapíše finální report do databáze leadů.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1kZRjTgZF6XkFSuGdge2tUDGebJunUyZDrVTFzbWxBOs",
+          "mode": "list",
+          "cachedResultName": "Lead Research",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kZRjTgZF6XkFSuGdge2tUDGebJunUyZDrVTFzbWxBOs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kZRjTgZF6XkFSuGdge2tUDGebJunUyZDrVTFzbWxBOs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Firma": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Firma', `Název firmy, kterou jsme zkoumali`, 'string') }}",
+            "Report": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Report', `Kompletní report o firmě`, 'string') }}",
+            "Datum": "={{ $now.toFormat('dd.MM.yyyy HH:mm')  }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Firma",
+              "displayName": "Firma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Report",
+              "displayName": "Report",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datum",
+              "displayName": "Datum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        224
+      ],
+      "id": "f3e5746b-f311-4b66-bd5a-189f8b0fcbd4",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tTd8lt768roCFb4H",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

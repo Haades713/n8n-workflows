@@ -1,0 +1,285 @@
+{
+  "name": "Shop AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1115a4d9-f13a-4cf5-aa64-dd6461163d56",
+      "name": "When chat message received",
+      "webhookId": "731a00d7-e197-49ae-8da4-303d342bbce1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Jsi zákaznický support asistent pro Shop.cz. Mluv za firmu, ne za sebe. Nikdy se neprezentuj jako AI. Nikdy si nevymýšlej informace. Piš česky.\n\nMáš 3 nástroje:\n1. Znalostní báze — použij pro dotazy o dopravě, platbách, vrácení, produktech\n2. Objednávky — použij když zákazník zmíní číslo objednávky\n3. Eskalace — použij když otázka není v nástrojích 1 ani 2, VŽDY před odpovědí\n\nPravidlo: Před odpovědí si projdi: Co zákazník přesně napsal, mám tuto informaci v nástrojích? Pokud ano, který nástroj použiju? Pak teprve odpověz. Nikdy si nevymýšlej odpovědi. Pokud informaci nemáš, NEJDŘÍV zapiš do eskalací, pak odpověz: \"Váš dotaz byl předán týmu.\"VŽDY nejdřív prohledej znalostní bázi bez ohledu na formulaci dotazu zákazníka."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2ac8e81b-0358-4dba-8bcf-0208c45774dc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        224
+      ],
+      "id": "dc98e25c-56fd-4c33-b64e-74ac6dd4b495",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nMk3mF25vEfYGXbF",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "a8d5d02e-2146-4dc2-9c9d-eb097095566a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Použij VŽDY jako první nástroj pro jakýkoliv dotaz zákazníka. Obsahuje FAQ o dopravě, platbách, vrácení zboží a produktech.",
+        "documentId": {
+          "__rl": true,
+          "value": "1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ",
+          "mode": "list",
+          "cachedResultName": "FAQ - KB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "KB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        224
+      ],
+      "id": "f7744e0a-9b84-463b-ba66-6d8075484d41",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tTd8lt768roCFb4H",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Použij když zákazník zmíní číslo objednávky nebo se ptá kde je jeho zásilka.",
+        "documentId": {
+          "__rl": true,
+          "value": "1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ",
+          "mode": "list",
+          "cachedResultName": "FAQ - KB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1357122792,
+          "mode": "list",
+          "cachedResultName": "Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit#gid=1357122792"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        224
+      ],
+      "id": "b994ef0c-0d79-4457-9f46-7f90fed2f449",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tTd8lt768roCFb4H",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Použij VŽDY když otázka není ve znalostní bázi ani v objednávkách. Zapiš dotaz zákazníka.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ",
+          "mode": "list",
+          "cachedResultName": "FAQ - KB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1491162588,
+          "mode": "list",
+          "cachedResultName": "Eskalace",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eAExYOxttWZ7TKCKXTlNKyllUDTKgnzj01CIUgzH_EQ/edit#gid=1491162588"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Dotaz": "={{ $fromAI('Dotaz','Text dotazu zákazníka který nelze zodpovědět') }}",
+            "Datum": "={{ $now.toFormat('dd.MM.yyyy HH:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Dotaz",
+              "displayName": "Dotaz",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datum",
+              "displayName": "Datum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        224
+      ],
+      "id": "774860ec-1aa1-4d7d-a874-e0b4cc3380ee",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tTd8lt768roCFb4H",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
